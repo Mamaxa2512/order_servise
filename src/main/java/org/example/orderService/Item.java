@@ -4,6 +4,7 @@ import org.example.inventoryService.Ingredient;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 public class Item {
     private final String type;
@@ -23,6 +24,18 @@ public class Item {
 
     public BigDecimal getPrice(){
         return this.price;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return Objects.equals(type, item.type) && Objects.equals(name, item.name) && Objects.equals(ingredients, item.ingredients) && Objects.equals(price, item.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, name, ingredients, price);
     }
 
     public void setPrice(BigDecimal price){

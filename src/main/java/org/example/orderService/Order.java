@@ -10,8 +10,12 @@ import java.util.List;
 public class Order {
     private final List<Item> order = new ArrayList<>();
     private final int orderId;
-    public Order(int orderId){
+    public Order(int orderId) {
         this.orderId = orderId;
+    }
+
+    public int getOrderId() {
+        return orderId;
     }
     public List<Item> getOrder() {
         return Collections.unmodifiableList(order);

@@ -6,11 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Inventory {
-    private final List<Ingredient> items;
-
-    public Inventory() {
-        items = new ArrayList<Ingredient>();
-    }
+    private final List<Ingredient> items = new ArrayList<>();
 
     public List<Ingredient> getItems() {
         return Collections.unmodifiableList(items);
@@ -24,7 +20,7 @@ public class Inventory {
         items.add(new Ingredient(type, name, count));
     }
 
-    public Optional<Ingredient> getIngredient(String name){
+    public Optional<Ingredient> getIngredient(String name) {
         return items.stream()
                 .filter(item -> item.getName().equals(name))
                 .findFirst();
@@ -37,5 +33,9 @@ public class Inventory {
             }
         }
         return false;
+    }
+
+    public void useIngredients(String name, int count) {
+        getIngredient(name).ifPresent(ingredient -> ingredient.setCount(ingredient.getCount() - count));
     }
 }

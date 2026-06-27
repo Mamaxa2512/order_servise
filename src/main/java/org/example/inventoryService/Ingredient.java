@@ -1,5 +1,7 @@
 package org.example.inventoryService;
 
+import java.util.Objects;
+
 public class Ingredient {
     private final String type;
     private final String name;
@@ -25,5 +27,17 @@ public class Ingredient {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Ingredient that = (Ingredient) o;
+        return Objects.equals(type, that.type) && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, name);
     }
 }
