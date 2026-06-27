@@ -1,16 +1,19 @@
 package org.example.inventoryService;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class Inventory {
-    private ArrayList<Ingredient> items;
+    private final List<Ingredient> items;
 
     public Inventory() {
         items = new ArrayList<Ingredient>();
     }
 
-    public ArrayList<Ingredient> getItems() {
-        return items;
+    public List<Ingredient> getItems() {
+        return Collections.unmodifiableList(items);
     }
 
     public void addItem(Ingredient ingredient) {
@@ -19,6 +22,12 @@ public class Inventory {
 
     public void addItem(String type, String name, int count) {
         items.add(new Ingredient(type, name, count));
+    }
+
+    public Optional<Ingredient> getIngredient(String name){
+        return items.stream()
+                .filter(item -> item.getName().equals(name))
+                .findFirst();
     }
 
     public boolean isItemAvailable(String name, int count) {

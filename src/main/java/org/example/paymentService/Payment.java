@@ -1,17 +1,19 @@
 package org.example.paymentService;
 
+import java.math.BigDecimal;
+
 public class Payment {
-    private int amount;
+    private BigDecimal amount;
     private final String id;
     private String method;
 
-    public Payment(String id, int amount, String method) {
+    public Payment(String id, BigDecimal amount, String method) {
         this.id = id;
         this.amount = amount;
         this.method = method;
     }
 
-    public int getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -23,7 +25,7 @@ public class Payment {
         return method;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

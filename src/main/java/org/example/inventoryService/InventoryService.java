@@ -3,16 +3,16 @@ package org.example.inventoryService;
 import org.example.orderService.Item;
 import org.example.orderService.Order;
 
+import java.util.Optional;
+
 public class InventoryService {
     private final Inventory inventory;
-    private final Order order;
 
-    public InventoryService(Inventory inventory, Order order) {
+    public InventoryService(Inventory inventory) {
         this.inventory = inventory;
-        this.order = order;
     }
 
-    public boolean isValidOrder() {
+    public boolean isValidOrder(Order order) {
         for (Item item : order.getOrder()) {
             for (Ingredient ingredient : item.getIngredients()) {
                 if (!inventory.isItemAvailable(ingredient.getName(), ingredient.getCount())) {
@@ -21,5 +21,26 @@ public class InventoryService {
             }
         }
         return true;
+    }
+
+    public boolean makeOrder(Order order){
+        if(!isValidOrder(order)){
+            return false;
+        }
+        for(Item item: order.getOrder()){
+            for(Ingredient ingredient: item.getIngredients()){
+                Optional<Ingredient> inventoryIngredientOpt = inventory.getIngredient(ingredient.getName());
+                if(inventoryIngredientOpt.isPresent()){
+                    Ingredient inventoryIngredient = inventoryIngredientOpt.get();
+                    inventoryIngredient.setCount(inventoryIngredient.getCount() - ingredient.getCount());
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        return true;
+
+
     }
 }
