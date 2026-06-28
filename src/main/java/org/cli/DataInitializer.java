@@ -1,10 +1,10 @@
-package org.example.cli;
+package org.cli;
 
-import org.example.inventoryService.Ingredient;
-import org.example.inventoryService.Inventory;
-import org.example.inventoryService.InventoryService;
-import org.example.orderService.Item;
-import org.example.orderService.Menu;
+import org.inventoryService.Ingredient;
+import org.inventoryService.Inventory;
+import org.inventoryService.InventoryService;
+import org.orderService.Item;
+import org.orderService.Menu;
 
 import java.math.BigDecimal;
 import java.util.List;

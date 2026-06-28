@@ -1,7 +1,7 @@
-package org.example.inventoryService;
+package org.inventoryService;
 
-import org.example.orderService.Item;
-import org.example.orderService.Order;
+import org.orderService.Item;
+import org.orderService.Order;
 
 import java.util.HashMap;
 import java.util.Map;

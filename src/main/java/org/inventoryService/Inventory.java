@@ -1,4 +1,4 @@
-package org.example.inventoryService;
+package org.inventoryService;
 
 import java.util.ArrayList;
 import java.util.Collections;

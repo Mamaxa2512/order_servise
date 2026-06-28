@@ -1,6 +1,4 @@
-package org.example.orderService;
-
-import org.example.inventoryService.Ingredient;
+package org.orderService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
-package org.example;
+package org;
 
-import org.example.cli.Application;
-import org.example.cli.DataInitializer;
+import org.cli.Application;
+import org.cli.DataInitializer;
 
 public class Main {
     public static void main(String[] args) {

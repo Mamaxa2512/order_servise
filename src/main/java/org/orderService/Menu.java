@@ -1,4 +1,4 @@
-package org.example.orderService;
+package org.orderService;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -49,7 +49,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.example.Main</mainClass>
+                            <mainClass>org.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

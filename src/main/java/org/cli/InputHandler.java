@@ -1,4 +1,4 @@
-package org.example.cli;
+package org.cli;
 
 import java.util.Scanner;
 

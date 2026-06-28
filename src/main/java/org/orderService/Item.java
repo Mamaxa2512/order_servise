@@ -1,6 +1,6 @@
-package org.example.orderService;
+package org.orderService;
 
-import org.example.inventoryService.Ingredient;
+import org.inventoryService.Ingredient;
 
 import java.math.BigDecimal;
 import java.util.List;

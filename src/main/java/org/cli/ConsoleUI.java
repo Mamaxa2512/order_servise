@@ -1,11 +1,11 @@
-package org.example.cli;
+package org.cli;
 
-import org.example.inventoryService.Ingredient;
-import org.example.inventoryService.Inventory;
-import org.example.orderService.Item;
-import org.example.orderService.Menu;
-import org.example.orderService.Order;
-import org.example.paymentService.Payment;
+import org.inventoryService.Ingredient;
+import org.inventoryService.Inventory;
+import org.orderService.Item;
+import org.orderService.Menu;
+import org.orderService.Order;
+import org.paymentService.Payment;
 
 import java.util.LinkedHashMap;
 import java.util.List;

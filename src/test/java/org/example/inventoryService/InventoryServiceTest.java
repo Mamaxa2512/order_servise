@@ -1,0 +1,99 @@
+package org.example.inventoryService;
+
+import org.inventoryService.Ingredient;
+import org.inventoryService.Inventory;
+import org.inventoryService.InventoryService;
+import org.junit.jupiter.api.Test;
+import org.orderService.Item;
+import org.orderService.Order;
+
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class InventoryServiceTest {
+    private Item itemWithCoffee(int coffeeCount) {
+        return new Item(
+                "Напій",
+                "Тестова кава",
+                1,
+                List.of(new Ingredient("Зерна", "Кавові зерна", coffeeCount)),
+                new BigDecimal("50.00")
+        );
+    }
+
+
+    @Test
+    void makeOrderUsesIngredientsWhenInventoryHasEnoughStock() {
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        order.addItem(itemWithCoffee(20));
+
+        boolean result = service.makeOrder(order);
+
+        assertTrue(result);
+        assertEquals(80, inventory.getIngredient("Кавові зерна").orElseThrow().getCount());
+    }
+
+
+    @Test
+    void makeOrderUsesIngredientsWhenInventoryHasNotEnoughStock() {
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        order.addItem(itemWithCoffee(200));
+
+        boolean result = service.makeOrder(order);
+
+        assertFalse(result);
+        assertEquals(100, inventory.getIngredient("Кавові зерна").orElseThrow().getCount());
+    }
+
+    @Test
+    void isValidOrderReturnsTrueWhenEnoughIngredients() {
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        order.addItem(itemWithCoffee(20));
+
+        assertTrue(service.isValidOrder(order));
+    }
+
+    @Test
+    void isValidOrderReturnsFalseWhenNotEnoughIngredients() {
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        order.addItem(itemWithCoffee(200));
+
+        assertFalse(service.isValidOrder(order));
+    }
+
+    @Test
+    void makeOrderSumsIngredientsForMultipleItems() {
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        order.addItem(itemWithCoffee(40));
+        order.addItem(itemWithCoffee(30));
+
+        boolean result = service.makeOrder(order);
+
+        assertTrue(result);
+        assertEquals(30, inventory.getIngredient("Кавові зерна").orElseThrow().getCount());
+    }
+
+}

@@ -1,4 +1,4 @@
-package org.example.paymentService;
+package org.paymentService;
 
 import java.math.BigDecimal;
 
