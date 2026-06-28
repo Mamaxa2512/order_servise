@@ -87,13 +87,13 @@ public class InventoryServiceTest {
 
         InventoryService service = new InventoryService(inventory);
         Order order = new Order(1);
-        order.addItem(itemWithCoffee(40));
-        order.addItem(itemWithCoffee(30));
+        Item coffee = itemWithCoffee(30);
+        order.addItem(coffee, 2);
 
         boolean result = service.makeOrder(order);
 
         assertTrue(result);
-        assertEquals(30, inventory.getIngredient("Кавові зерна").orElseThrow().getCount());
+        assertEquals(40, inventory.getIngredient("Кавові зерна").orElseThrow().getCount());
     }
 
 }

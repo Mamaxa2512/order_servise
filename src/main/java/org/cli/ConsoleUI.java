@@ -65,7 +65,7 @@ public class ConsoleUI {
         System.out.println();
         System.out.println("Поточне замовлення #" + order.getOrderId() + ":");
 
-        if (order.getOrder().isEmpty()) {
+        if (order.getItems().isEmpty()) {
             System.out.println("Замовлення порожнє.");
             return;
         }
@@ -97,37 +97,15 @@ public class ConsoleUI {
     }
 
     private void printOrderItems(Order order) {
-        Map<String, OrderLine> lines = new LinkedHashMap<>();
-
-        for (Item item : order.getOrder()) {
-            lines.compute(item.getName(), (name, line) -> {
-                if (line == null) {
-                    return new OrderLine(item, 1);
-                }
-                line.quantity++;
-                return line;
-            });
-        }
-
         System.out.printf("%-18s %6s %10s %10s%n", "Позиція", "К-сть", "Ціна", "Сума");
         System.out.println("----------------------------------------------");
 
-        for (OrderLine line : lines.values()) {
+        for (org.orderService.OrderItem line : order.getItems()) {
             System.out.printf("%-18s %6d %10.2f %10.2f%n",
-                    line.item.getName(),
-                    line.quantity,
-                    line.item.getPrice(),
-                    line.item.getPrice().multiply(java.math.BigDecimal.valueOf(line.quantity)));
-        }
-    }
-
-    private static class OrderLine {
-        private final Item item;
-        private int quantity;
-
-        private OrderLine(Item item, int quantity) {
-            this.item = item;
-            this.quantity = quantity;
+                    line.getItem().getName(),
+                    line.getQuantity(),
+                    line.getItem().getPrice(),
+                    line.getTotalPrice());
         }
     }
 }

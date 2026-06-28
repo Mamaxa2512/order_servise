@@ -27,9 +27,6 @@ public class OrderItem {
     }
 
     public void increaseQuantity(int amount) {
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative");
-        }
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount to increase must be greater than zero");
         }
