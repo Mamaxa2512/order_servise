@@ -60,8 +60,24 @@ public class OrderTest {
         order.removeItem("Espresso");
         
         assertEquals(new BigDecimal("50.00"), order.getTotalPrice());
-        assertEquals(1, order.getOrder().size());
-        assertEquals("Americano", order.getOrder().get(0).getName());
+        assertEquals(1, order.getItems().size());
+        assertEquals("Americano", order.getItems().get(0).getItem().getName());
+    }
+
+    @Test
+    void addItemWithQuantityAddsOneOrderItemAndIncreasesQuantity() {
+        Order order = new Order(1);
+        Item item = item("Espresso", "40.00");
+        order.addItem(item, 3);
+        
+        assertEquals(1, order.getItems().size());
+        assertEquals(3, order.getItems().get(0).getQuantity());
+        assertEquals(new BigDecimal("120.00"), order.getTotalPrice());
+        
+        order.addItem(item, 2);
+        assertEquals(1, order.getItems().size());
+        assertEquals(5, order.getItems().get(0).getQuantity());
+        assertEquals(new BigDecimal("200.00"), order.getTotalPrice());
     }
 
 

@@ -6,8 +6,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class Order {
-    private final List<Item> order = new ArrayList<>();
+    private final List<Item> order = new ArrayList<Item>();
     private final int orderId;
+
     public Order(int orderId) {
         this.orderId = orderId;
     }
@@ -15,6 +16,7 @@ public class Order {
     public int getOrderId() {
         return orderId;
     }
+
     public List<Item> getOrder() {
         return Collections.unmodifiableList(order);
     }
@@ -35,4 +37,3 @@ public class Order {
         order.removeIf(item -> item.getName().equals(name));
     }
 }
-

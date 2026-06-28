@@ -85,9 +85,7 @@ public class Application {
                 continue;
             }
 
-            for (int i = 0; i < quantity; i++) {
-                order.addItem(selectedItem.get());
-            }
+            order.addItem(selectedItem.get(), quantity);
 
             consoleUI.printSuccess("Позицію додано до замовлення.");
         }
@@ -106,7 +104,7 @@ public class Application {
     }
 
     private void completeOrder(Order order) {
-        if (order.getOrder().isEmpty()) {
+        if (order.getItems().isEmpty()) {
             consoleUI.printInfo("Замовлення скасовано: не додано жодної позиції.");
             inputHandler.waitForEnter();
             return;

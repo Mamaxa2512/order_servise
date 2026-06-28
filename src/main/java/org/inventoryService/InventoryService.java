@@ -17,9 +17,11 @@ public class InventoryService {
     public boolean isValidOrder(Order order) {
         Map<String, Integer> totalRequired = new HashMap<>();
 
-        for (Item item : order.getOrder()) {
+        for (org.orderService.OrderItem orderItem : order.getItems()) {
+            Item item = orderItem.getItem();
+            int quantity = orderItem.getQuantity();
             for (Ingredient ingredient : item.getIngredients()) {
-                int currentRequired = ingredient.getCount() * item.getCount();
+                int currentRequired = ingredient.getCount() * quantity;
                 totalRequired.put(ingredient.getName(),
                         totalRequired.getOrDefault(ingredient.getName(), 0) + currentRequired);
             }
@@ -38,12 +40,14 @@ public class InventoryService {
         if (!isValidOrder(order)) {
             return false;
         }
-        for (Item item : order.getOrder()) {
+        for (org.orderService.OrderItem orderItem : order.getItems()) {
+            Item item = orderItem.getItem();
+            int quantity = orderItem.getQuantity();
             for (Ingredient ingredient : item.getIngredients()) {
                 Optional<Ingredient> inventoryIngredientOpt = inventory.getIngredient(ingredient.getName());
                 if (inventoryIngredientOpt.isPresent()) {
                     Ingredient inventoryIngredient = inventoryIngredientOpt.get();
-                    inventory.useIngredients(inventoryIngredient.getName(), ingredient.getCount() * item.getCount());
+                    inventory.useIngredients(inventoryIngredient.getName(), ingredient.getCount() * quantity);
                 } else {
                     throw new RuntimeException("Ingredient not found in inventory");
                 }
