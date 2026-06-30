@@ -96,4 +96,39 @@ public class InventoryServiceTest {
         assertEquals(40, inventory.getIngredient("Кавові зерна").orElseThrow().getCount());
     }
 
+
+    @Test
+    void getMissingIngredientsReturnsCorrectMissingIngredients() {
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        Item coffee = itemWithCoffee(30);
+        order.addItem(coffee, 5); // Total required: 150
+
+        List<org.inventoryService.MissingIngredient> missingIngredients = service.getMissingIngredients(order);
+
+        assertEquals(1, missingIngredients.size());
+        org.inventoryService.MissingIngredient missing = missingIngredients.get(0);
+        assertEquals("Кавові зерна", missing.getName());
+        assertEquals(150, missing.getRequiredCount());
+        assertEquals(100, missing.getAvailableCount());
+    }
+
+    @Test
+    void getMissingIngredientsReturnsEmptyList(){
+        Inventory inventory = new Inventory();
+        inventory.addItem(new Ingredient("Зерна", "Кавові зерна", 100));
+
+        InventoryService service = new InventoryService(inventory);
+        Order order = new Order(1);
+        Item coffee = itemWithCoffee(30);
+        order.addItem(coffee, 3); // Total required: 90
+
+        List<org.inventoryService.MissingIngredient> missingIngredients = service.getMissingIngredients(order);
+
+        assertTrue(missingIngredients.isEmpty());
+    }
+
 }

@@ -108,4 +108,20 @@ public class ConsoleUI {
                     line.getTotalPrice());
         }
     }
+
+
+    public void printMissingIngredients(List<org.inventoryService.MissingIngredient> missingIngredients) {
+        System.out.println();
+        System.out.println("Недостатньо інгредієнтів для замовлення:");
+        System.out.printf("%-18s %10s %10s %10s%n", "Назва", "Потрібно", "Доступно", "Не вистачає");
+        System.out.println("----------------------------------------------------------");
+
+        for (org.inventoryService.MissingIngredient missing : missingIngredients) {
+            System.out.printf("%-18s %10d %10d %10d%n",
+                    missing.getName(),
+                    missing.getRequiredCount(),
+                    missing.getAvailableCount(),
+                    missing.getMissingCount());
+        }
+    }
 }

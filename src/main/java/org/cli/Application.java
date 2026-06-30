@@ -2,10 +2,12 @@ package org.cli;
 
 import org.inventoryService.Inventory;
 import org.inventoryService.InventoryService;
+import org.inventoryService.MissingIngredient;
 import org.orderService.Item;
 import org.orderService.Menu;
 import org.orderService.Order;
 import org.paymentService.Payment;
+import org.paymentService.PaymentService;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +20,13 @@ public class Application {
     private final ConsoleUI consoleUI;
     private int nextOrderId = 1;
     private boolean running = true;
+    private final PaymentService paymentService;
 
-    public Application(Menu menu, Inventory inventory, InventoryService inventoryService) {
+    public Application(Menu menu, Inventory inventory, InventoryService inventoryService, PaymentService paymentService) {
         this.menu = menu;
         this.inventory = inventory;
         this.inventoryService = inventoryService;
+        this.paymentService = paymentService;
         this.inputHandler = new InputHandler();
         this.consoleUI = new ConsoleUI();
     }
@@ -120,6 +124,12 @@ public class Application {
         }
 
         try {
+            List<MissingIngredient> missingIngredients = inventoryService.getMissingIngredients(order);
+            if(!missingIngredients.isEmpty()){
+                consoleUI.printMissingIngredients(missingIngredients);
+                inputHandler.waitForEnter();
+                return;
+            }
             boolean orderPrepared = inventoryService.makeOrder(order);
             if (!orderPrepared) {
                 consoleUI.printError("недостатньо інгредієнтів на складі.");
@@ -127,11 +137,7 @@ public class Application {
                 return;
             }
 
-            Payment payment = new Payment(
-                    "PAY-" + order.getOrderId(),
-                    order.getTotalPrice(),
-                    "CASH"
-            );
+            Payment payment = paymentService.pay(order, "CASH");
             consoleUI.printReceipt(order, payment);
         } catch (RuntimeException e) {
             consoleUI.printError(e.getMessage());
