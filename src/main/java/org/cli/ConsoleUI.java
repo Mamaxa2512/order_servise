@@ -31,6 +31,7 @@ public class ConsoleUI {
         System.out.println("1. Показати меню");
         System.out.println("2. Створити замовлення");
         System.out.println("3. Перевірити склад");
+        System.out.println("4. Історія замовлень");
         System.out.println("0. Вихід");
     }
 
