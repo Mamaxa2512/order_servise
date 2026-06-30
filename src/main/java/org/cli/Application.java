@@ -123,9 +123,8 @@ public class Application {
         }
 
         consoleUI.printOrderDraft(order);
-        String confirmation = inputHandler.readString("Оплатити замовлення? (y/n): ");
 
-        if (!confirmation.equalsIgnoreCase("y")) {
+        if (!inputHandler.readConfirmation("Оплатити замовлення? (y/n): ")) {
             consoleUI.printInfo("Замовлення скасовано.");
             inputHandler.waitForEnter();
             return;

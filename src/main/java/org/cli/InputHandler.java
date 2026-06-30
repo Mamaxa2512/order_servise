@@ -31,4 +31,19 @@ public class InputHandler {
         System.out.print("Натисніть Enter, щоб продовжити...");
         scanner.nextLine();
     }
+
+    public boolean readConfirmation(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim().toLowerCase();
+            
+            if (input.equals("y") || input.equals("yes") || input.equals("так") || input.equals("т")) {
+                return true;
+            } else if (input.equals("n") || input.equals("no") || input.equals("ні") || input.equals("н")) {
+                return false;
+            } else {
+                System.out.println("Помилка: невідома відповідь. Будь ласка, введіть 'так' або 'ні'.");
+            }
+        }
+    }
 }

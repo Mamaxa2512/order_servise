@@ -22,6 +22,10 @@ public class ConsoleUI {
         System.out.println(CYAN + "=== Cafe Order Service ===" + RESET);
     }
 
+    public void printSeparator() {
+        System.out.println("----------------------------------------------");
+    }
+
     public void printMainMenu() {
         System.out.println();
         System.out.println("1. Показати меню");
@@ -36,7 +40,7 @@ public class ConsoleUI {
         System.out.println();
         System.out.println("Меню:");
         System.out.printf("%-4s %-16s %-12s %10s%n", "#", "Назва", "Тип", "Ціна");
-        System.out.println("----------------------------------------------");
+        printSeparator();
 
         for (int i = 0; i < items.size(); i++) {
             Item item = items.get(i);
@@ -52,7 +56,7 @@ public class ConsoleUI {
         System.out.println();
         System.out.println("Склад:");
         System.out.printf("%-14s %-18s %10s%n", "Тип", "Назва", "Кількість");
-        System.out.println("----------------------------------------------");
+        printSeparator();
 
         for (Ingredient ingredient : inventory.getItems()) {
             System.out.printf("%-14s %-18s %10d%n",
@@ -81,7 +85,7 @@ public class ConsoleUI {
         System.out.println("Чек #" + payment.getId());
         System.out.println("Метод оплати: " + payment.getMethod());
         printOrderItems(order);
-        System.out.println("----------------------------------------------");
+        printSeparator();
         System.out.println("До сплати: " + payment.getAmount());
     }
 
@@ -99,7 +103,7 @@ public class ConsoleUI {
 
     private void printOrderItems(Order order) {
         System.out.printf("%-18s %6s %10s %10s%n", "Позиція", "К-сть", "Ціна", "Сума");
-        System.out.println("----------------------------------------------");
+        printSeparator();
 
         for (org.orderService.OrderItem line : order.getItems()) {
             System.out.printf("%-18s %6d %10.2f %10.2f%n",
@@ -115,7 +119,7 @@ public class ConsoleUI {
         System.out.println();
         System.out.println("Недостатньо інгредієнтів для замовлення:");
         System.out.printf("%-18s %10s %10s %10s%n", "Назва", "Потрібно", "Доступно", "Не вистачає");
-        System.out.println("----------------------------------------------------------");
+        System.out.println("------------------------------------------------------------");
 
         for (org.inventoryService.MissingIngredient missing : missingIngredients) {
             System.out.printf("%-18s %10d %10d %10d%n",
@@ -129,7 +133,7 @@ public class ConsoleUI {
     public void printOrderHistory(OrderHistory orderHistory){
         System.out.println();
         System.out.println("Історія замовлень:");
-        System.out.println("----------------------------------------------");
+        printSeparator();
         
         if (orderHistory.getOrders().isEmpty()) {
             System.out.println("Історія порожня.");
@@ -137,7 +141,7 @@ public class ConsoleUI {
         }
 
         System.out.printf("%-12s %-20s %10s%n", "Замовлення", "Кількість позицій", "Сума");
-        System.out.println("----------------------------------------------");
+        printSeparator();
         
         for (Order order : orderHistory.getOrders()) {
             int itemsCount = order.getItems().stream().mapToInt(org.orderService.OrderItem::getQuantity).sum();
