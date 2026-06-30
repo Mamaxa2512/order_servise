@@ -5,6 +5,7 @@ import org.inventoryService.Inventory;
 import org.inventoryService.InventoryService;
 import org.orderService.Item;
 import org.orderService.Menu;
+import org.orderService.OrderHistory;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,12 +14,18 @@ public class DataInitializer {
     private final Inventory inventory;
     private final Menu menu;
     private final InventoryService inventoryService;
+    private final OrderHistory orderHistory;
 
     public DataInitializer() {
         this.inventory = new Inventory();
         this.menu = new Menu();
         this.inventoryService = new InventoryService(inventory);
+        this.orderHistory = new OrderHistory();
         initData();
+    }
+
+    public OrderHistory getOrderHistory(){
+        return orderHistory;
     }
 
     private void initData() {

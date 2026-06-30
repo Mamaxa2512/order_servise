@@ -5,6 +5,7 @@ import org.inventoryService.Inventory;
 import org.orderService.Item;
 import org.orderService.Menu;
 import org.orderService.Order;
+import org.orderService.OrderHistory;
 import org.paymentService.Payment;
 
 import java.util.LinkedHashMap;
@@ -122,6 +123,28 @@ public class ConsoleUI {
                     missing.getRequiredCount(),
                     missing.getAvailableCount(),
                     missing.getMissingCount());
+        }
+    }
+
+    public void printOrderHistory(OrderHistory orderHistory){
+        System.out.println();
+        System.out.println("Історія замовлень:");
+        System.out.println("----------------------------------------------");
+        
+        if (orderHistory.getOrders().isEmpty()) {
+            System.out.println("Історія порожня.");
+            return;
+        }
+
+        System.out.printf("%-12s %-20s %10s%n", "Замовлення", "Кількість позицій", "Сума");
+        System.out.println("----------------------------------------------");
+        
+        for (Order order : orderHistory.getOrders()) {
+            int itemsCount = order.getItems().stream().mapToInt(org.orderService.OrderItem::getQuantity).sum();
+            System.out.printf("#%-11d %-20d %10.2f%n",
+                    order.getOrderId(),
+                    itemsCount,
+                    order.getTotalPrice());
         }
     }
 }

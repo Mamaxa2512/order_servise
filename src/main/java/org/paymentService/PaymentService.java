@@ -11,7 +11,7 @@ public class PaymentService {
         BigDecimal sum = order.getTotalPrice();
         Random random = new Random();
         int paymentId = (random.nextInt(10000000, 99999999));
-        return new Payment("Pay" +(i++)+ "-" +String.valueOf(paymentId), sum, method);
+        return new Payment("Pay" +(i++)+ "-" + paymentId, sum, method);
     }
 
 }

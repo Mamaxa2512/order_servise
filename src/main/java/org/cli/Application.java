@@ -6,6 +6,7 @@ import org.inventoryService.MissingIngredient;
 import org.orderService.Item;
 import org.orderService.Menu;
 import org.orderService.Order;
+import org.orderService.OrderHistory;
 import org.paymentService.Payment;
 import org.paymentService.PaymentService;
 
@@ -21,6 +22,7 @@ public class Application {
     private int nextOrderId = 1;
     private boolean running = true;
     private final PaymentService paymentService;
+    private final OrderHistory orderHistory = new OrderHistory();
 
     public Application(Menu menu, Inventory inventory, InventoryService inventoryService, PaymentService paymentService) {
         this.menu = menu;
@@ -46,6 +48,7 @@ public class Application {
             case 1 -> showMenu();
             case 2 -> createOrder();
             case 3 -> showInventory();
+            case 4 -> showOrderHistory();
             case 0 -> exit();
             default -> consoleUI.printError("невідома команда.");
         }
@@ -58,6 +61,11 @@ public class Application {
 
     private void showInventory() {
         consoleUI.printInventory(inventory);
+        inputHandler.waitForEnter();
+    }
+
+    private void showOrderHistory(){
+        consoleUI.printOrderHistory(orderHistory);
         inputHandler.waitForEnter();
     }
 
@@ -139,6 +147,7 @@ public class Application {
 
             Payment payment = paymentService.pay(order, "CASH");
             consoleUI.printReceipt(order, payment);
+            orderHistory.add(order);
         } catch (RuntimeException e) {
             consoleUI.printError(e.getMessage());
         }
