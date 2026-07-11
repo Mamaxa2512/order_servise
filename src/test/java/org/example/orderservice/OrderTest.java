@@ -1,4 +1,4 @@
-package org.example.orderService;
+package org.example.orderservice;
 
 import org.inventoryService.Ingredient;
 import org.junit.jupiter.api.Test;

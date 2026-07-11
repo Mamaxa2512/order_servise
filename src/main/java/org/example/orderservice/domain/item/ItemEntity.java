@@ -17,6 +17,14 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemEntity extends BaseEntity {
 
+    public ItemEntity(String type, String name, BigDecimal price) {
+        this.type = type;
+        this.name = name;
+        this.price = price;
+    }
+
+
+
     @Column(nullable = false)
     private String type;
 
