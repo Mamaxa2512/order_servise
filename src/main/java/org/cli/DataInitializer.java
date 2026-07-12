@@ -49,7 +49,7 @@ public class DataInitializer {
         );
         Item americano = new Item("Напій", "Американо", 1, americanoIngredients, new BigDecimal("40.00"));
 
-        // Рецепт Капучіно
+        // Рецепт Капучино
         List<Ingredient> cappuccinoIngredients = List.of(
                 new Ingredient("Зерна", "Кавові зерна", 15),
                 new Ingredient("Рідина", "Вода", 30),
