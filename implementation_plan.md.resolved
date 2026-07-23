@@ -1,0 +1,286 @@
+# Імплементація Сервісного Шару (Service Layer)
+
+## Контекст
+
+Проект `order_service` — Spring Boot додаток для кав'ярні. На даний момент готові:
+- **Domain Entities**: `BaseEntity`, `ItemEntity`, `IngredientEntity`, `OrderEntity`, `OrderItemEntity`, `PaymentEntity`, `OrderStatus`
+- **Repositories**: `ItemRepository`, `IngredientRepository`, `OrderRepository`, `PaymentRepository`
+- **DTOs**: Request/Response класи для всіх ресурсів
+- **MapStruct Mappers**: `ItemMapper`, `IngredientMapper`, `OrderMapper`, `PaymentMapper`
+- **Database**: Flyway міграції (`V1__init_schema.sql`, `V2__seed_data.sql`), PostgreSQL
+
+**Мета**: Створити сервісний шар, який з'єднає репозиторії, маппери та бізнес-логіку, підготувавши проект до REST API.
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> **Кількість інгредієнтів на один item**: Зараз таблиця `item_ingredients` — це M2M без колонки `quantity` (скільки грамів зерен потрібно на 1 еспресо). Це означає, що на цьому етапі ми **не зможемо** реалізувати списання інгредієнтів зі складу. Чи хочеш додати міграцію `V3` з колонкою `quantity` в `item_ingredients`, чи відкладемо цю логіку на пізніше?
+
+> [!NOTE]
+> **Зміна `OrderStatus`**: Зараз OrderEntity не має сеттера для `status`. Потрібно додати метод зміни статусу з валідацією переходів (наприклад, не можна перейти з `CANCELLED` в `CONFIRMED`).
+
+---
+
+## Proposed Changes
+
+### Фаза 1: Custom Exceptions + Global Error Handling
+
+#### [NEW] [ResourceNotFoundException.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/exception/ResourceNotFoundException.java)
+
+Виняток для випадків, коли ресурс не знайдено за ID.
+
+```java
+// extends RuntimeException
+// конструктор: ResourceNotFoundException(String resourceName, Long id)
+// message: "Еспресо with id 42 not found"
+```
+
+#### [NEW] [OrderStatusException.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/exception/OrderStatusException.java)
+
+Виняток для невалідних переходів статусу замовлення.
+
+```java
+// extends RuntimeException
+// message: "Cannot transition from CANCELLED to CONFIRMED"
+```
+
+#### [NEW] [ErrorResponse.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/dto/ErrorResponse.java)
+
+Уніфікована DTO для відповідей з помилками.
+
+```java
+// Поля: int status, String error, String message, Instant timestamp
+```
+
+#### [NEW] [GlobalExceptionHandler.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/exception/GlobalExceptionHandler.java)
+
+`@RestControllerAdvice` з обробниками:
+
+| Виняток | HTTP статус |
+|---|---|
+| `ResourceNotFoundException` | `404 Not Found` |
+| `OrderStatusException` | `409 Conflict` |
+| `IllegalArgumentException` | `400 Bad Request` |
+| `MethodArgumentNotValidException` | `400 Bad Request` |
+| `Exception` (fallback) | `500 Internal Server Error` |
+
+---
+
+### Фаза 2: Доповнення Domain Entities
+
+#### [MODIFY] [OrderEntity.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/domain/order/OrderEntity.java)
+
+Додати методи:
+
+```java
+public void changeStatus(OrderStatus newStatus) {
+    // валідація переходів (CREATED → CONFIRMED → IN_PROGRESS → COMPLETED)
+    // CREATED/CONFIRMED → CANCELLED (дозволено)
+    // кидає OrderStatusException при невалідному переході
+    this.status = newStatus;
+}
+
+public BigDecimal getTotalPrice() {
+    return items.stream()
+        .map(i -> i.getItem().getPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+}
+```
+
+#### [MODIFY] [OrderItemEntity.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/domain/order/OrderItemEntity.java)
+
+Додати конструктор для створення з `ItemEntity` та `quantity`:
+
+```java
+public OrderItemEntity(ItemEntity item, int quantity) {
+    this.item = item;
+    this.quantity = quantity;
+}
+```
+
+#### [MODIFY] [PaymentEntity.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/domain/payment/PaymentEntity.java)
+
+Додати конструктор:
+
+```java
+public PaymentEntity(BigDecimal amount, String method) {
+    this.amount = amount;
+    this.method = method;
+}
+```
+
+---
+
+### Фаза 3: Сервісний шар
+
+Усі сервіси розміщуються в пакеті `org.example.orderservice.service`.
+
+---
+
+#### [NEW] [ItemService.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/service/ItemService.java)
+
+| Метод | Опис |
+|---|---|
+| `List<ItemResponse> getAllItems()` | Повертає все меню |
+| `ItemResponse getItemById(Long id)` | Повертає item або кидає `ResourceNotFoundException` |
+| `ItemResponse getItemByName(String name)` | Пошук за назвою |
+
+**Залежності**: `ItemRepository`, `ItemMapper`
+
+---
+
+#### [NEW] [IngredientService.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/service/IngredientService.java)
+
+| Метод | Опис |
+|---|---|
+| `List<IngredientResponse> getAllIngredients()` | Повертає весь склад |
+| `IngredientResponse getIngredientById(Long id)` | За ID або `ResourceNotFoundException` |
+
+**Залежності**: `IngredientRepository`, `IngredientMapper`
+
+---
+
+#### [NEW] [OrderService.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/service/OrderService.java)
+
+Головний сервіс із бізнес-логікою. Всі публічні методи — `@Transactional`.
+
+| Метод | Опис |
+|---|---|
+| `OrderResponse createOrder(CreateOrderRequest req)` | Створює замовлення зі статусом `CREATED` |
+| `OrderResponse getOrderById(Long id)` | За ID або `ResourceNotFoundException` |
+| `List<OrderResponse> getOrdersByStatus(OrderStatus status)` | Фільтрація за статусом |
+| `List<OrderResponse> getAllOrders()` | Всі замовлення |
+| `OrderResponse confirmOrder(Long id)` | `CREATED → CONFIRMED` |
+| `OrderResponse cancelOrder(Long id)` | `CREATED/CONFIRMED → CANCELLED` |
+| `OrderResponse completeOrder(Long id)` | `IN_PROGRESS → COMPLETED` |
+
+**Логіка `createOrder`:**
+1. Для кожного `OrderItemRequest` знайти `ItemEntity` за `itemId` (або кинути `ResourceNotFoundException`)
+2. Створити `OrderItemEntity(item, quantity)`
+3. Додати в `OrderEntity` через `addItem()`
+4. Зберегти через `orderRepository.save()`
+5. Конвертувати результат через `OrderMapper`
+
+**Залежності**: `OrderRepository`, `ItemRepository`, `OrderMapper`
+
+---
+
+#### [NEW] [PaymentService.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/service/PaymentService.java)
+
+| Метод | Опис |
+|---|---|
+| `PaymentResponse payForOrder(Long orderId, CreatePaymentRequest req)` | Створює оплату для замовлення |
+| `PaymentResponse getPaymentById(Long id)` | За ID |
+
+**Логіка `payForOrder`:**
+1. Знайти `OrderEntity` (або `ResourceNotFoundException`)
+2. Перевірити, що замовлення у статусі `CONFIRMED` (інакше `OrderStatusException`)
+3. Перевірити, що оплата ще не прив'язана (інакше `IllegalArgumentException`)
+4. Створити `PaymentEntity(amount, method)`
+5. Прив'язати до замовлення через `order.setPayment(payment)`
+6. Змінити статус на `IN_PROGRESS`
+7. Зберегти
+
+**Залежності**: `PaymentRepository`, `OrderRepository`, `PaymentMapper`, `OrderMapper`
+
+---
+
+### Фаза 4: Валідація вхідних даних
+
+#### [MODIFY] [CreateOrderRequest.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/dto/order/CreateOrderRequest.java)
+
+Додати Jakarta Validation анотації:
+
+```java
+@NotNull @NotEmpty
+private List<@Valid OrderItemRequest> items;
+```
+
+#### [MODIFY] [OrderItemRequest.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/dto/order/OrderItemRequest.java)
+
+```java
+@Positive private long itemId;
+@Min(1) private int quantity;
+```
+
+#### [MODIFY] [CreatePaymentRequest.java](file:///home/anonim/IdeaProjects/order_service/src/main/java/org/example/orderservice/dto/payment/CreatePaymentRequest.java)
+
+```java
+@NotNull @Positive private BigDecimal amount;
+@NotBlank private String method;
+```
+
+#### [MODIFY] [pom.xml](file:///home/anonim/IdeaProjects/order_service/pom.xml)
+
+Додати залежність `spring-boot-starter-validation` (потрібна для Jakarta Validation).
+
+---
+
+## Структура після імплементації
+
+```
+src/main/java/org/example/orderservice/
+├── config/
+│   └── JpaConfig.java
+├── domain/
+│   ├── base/BaseEntity.java
+│   ├── ingredient/IngredientEntity.java
+│   ├── item/ItemEntity.java
+│   ├── order/OrderEntity.java          ← MODIFIED
+│   ├── order/OrderItemEntity.java      ← MODIFIED
+│   ├── order/OrderStatus.java
+│   └── payment/PaymentEntity.java      ← MODIFIED
+├── dto/
+│   ├── ErrorResponse.java              ← NEW
+│   ├── ingredient/IngredientResponse.java
+│   ├── item/ItemResponse.java
+│   ├── order/CreateOrderRequest.java   ← MODIFIED
+│   ├── order/OrderItemRequest.java     ← MODIFIED
+│   ├── order/OrderItemResponse.java
+│   ├── order/OrderResponse.java
+│   ├── payment/CreatePaymentRequest.java ← MODIFIED
+│   └── payment/PaymentResponse.java
+├── exception/
+│   ├── GlobalExceptionHandler.java     ← NEW
+│   ├── OrderStatusException.java       ← NEW
+│   └── ResourceNotFoundException.java  ← NEW
+├── mapper/
+├── repository/
+├── service/
+│   ├── IngredientService.java          ← NEW
+│   ├── ItemService.java                ← NEW
+│   ├── OrderService.java               ← NEW
+│   └── PaymentService.java             ← NEW
+└── OrderServiceApplication.java
+```
+
+---
+
+## Verification Plan
+
+### Автоматичне тестування
+
+```bash
+mvn clean compile
+```
+
+Перевіряємо, що проект компілюється без помилок після всіх змін.
+
+### Ручна перевірка
+
+Після додавання REST контролерів (наступний етап) сервіси можна буде протестувати через Swagger UI або curl. На цьому етапі перевіряємо:
+- Компіляція проходить успішно
+- MapStruct генерує імплементації маперів
+- Spring context стартує без помилок (можна перевірити через integration test)
+
+### Unit-тести (створюємо одразу)
+
+- `ItemServiceTest` — мокаємо `ItemRepository` + `ItemMapper`, перевіряємо `getAll`, `getById` (success + not found)
+- `OrderServiceTest` — мокаємо репозиторії, перевіряємо `createOrder`, `confirmOrder`, невалідні переходи статусів
+- `PaymentServiceTest` — перевіряємо `payForOrder`, подвійну оплату, оплату невірного статусу
+
+```bash
+mvn test
+```
